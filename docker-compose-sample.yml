@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+  cache:
+    image: memcached
+    ports:
+      - "11211:11211"
+    entrypoint:
+      - memcached
+      - -m 64
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: docker.env
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    depends_on:
+      - db
+      - cache
